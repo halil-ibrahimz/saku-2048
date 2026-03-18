@@ -1,0 +1,1199 @@
+:root {
+    --bg-color: #2c4228;
+    /* Hafif koyu pastel orman yeşili arka plan */
+    --text-color: #f4eee1;
+    /* Metin renklerini açık krem yaptık ki koyu yeşilde okunsun */
+    --grid-bg: #8B5A2B;
+    /* 4x4 Izgara arkaplanı: Açık/Tatlı bir Ahşap Kahverengisi */
+    --cell-bg: #a67c52;
+    /* Boş hücreler: Izgaradan biraz daha açık kahverengi */
+    --accent-color: #a4c29a;
+    /* Vurgular için yumuşak yeşil */
+    --board-spacing: 12px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    /* Merkeze değil, en üste dayadık */
+    min-height: 100vh;
+    touch-action: none;
+    user-select: none;
+    overflow-x: hidden;
+    /* Sağa kaymayı önler */
+    padding-top: 10px;
+    /* En üstte çok az nefes alma payı */
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    padding: 10px;
+    /* Yan ve üst boşlukları daralttık */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* Elemanlar arası boşluğu daralttık */
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    /* Çok daha kompakt */
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 5px;
+    /* Aradaki boşluğu iyice daralttık */
+}
+
+.header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    /* Başlık ve Jokerler arasındaki boşluk */
+    flex-wrap: wrap;
+}
+
+.header-titles {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.header-titles h1 {
+    font-size: 3.5rem;
+    /* Daha kompakt */
+    line-height: 0.9;
+    margin-bottom: 0;
+    color: #4a7c44;
+    letter-spacing: -1px;
+    font-weight: 900;
+    text-shadow: 2px 2px 0px #b5d1ab, 4px 4px 0px rgba(46, 77, 42, 0.15);
+    position: relative;
+    display: inline-block;
+    padding-right: 35px;
+}
+
+.header-titles h1::after {
+    content: '🌿';
+    font-size: 2.2rem;
+    position: absolute;
+    top: -5px;
+    right: 0;
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1));
+}
+
+/* Subtitle kaldırıldı */
+
+.header-controls {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    align-items: stretch;
+}
+
+/* =========================================================================
+   JOKER STYLES
+   ========================================================================= */
+
+.jokers-container {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 10px;
+    /* Doğa yazısının hizasına çekmek için */
+}
+
+.joker-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+    border: none;
+    color: #2c4228;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 0 #7a9472;
+    transition: all 0.2s;
+    outline: none;
+    position: relative;
+}
+
+.joker-btn.active {
+    background-color: #ffd700;
+    /* Altın sarısı aktif modu belirtir */
+    box-shadow: 0 0 15px #ffd700, 0 4px 0 #b89b00;
+    transform: scale(1.1);
+}
+
+#prune-charges,
+#swap-charges {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff4444;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-color);
+}
+
+.joker-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #7a9472;
+}
+
+.joker-btn.info {
+    color: #8d5524;
+    /* Kahverengi - Palamut/Gövde tonu */
+    margin-left: 10px;
+}
+
+.joker-btn.info:hover {
+    background: rgba(141, 85, 36, 0.15);
+    /* Kahverengi hover */
+    transform: translateY(-3px) scale(1.1);
+}
+
+.joker-btn.active:active {
+    transform: translateY(2px) scale(1.1);
+}
+
+.joker-btn:hover {
+    background-color: #b5d1ab;
+}
+
+/* Seçili Karo Efektleri (Swap için) */
+.tile.selected {
+    transform: scale(1.1) !important;
+    box-shadow: 0 0 30px #ffffff, 0 0 10px #ffffff !important;
+    z-index: 100;
+    border: 3px solid white;
+}
+
+/* Değiştirme ve Budama Modu Aktifken Karoların Parlaması */
+.pruning-mode .tile,
+.swap-mode .tile {
+    cursor: pointer;
+    pointer-events: auto;
+    /* Tıklanabilir olmalarını sağlar */
+    animation: prunePulse 1.5s infinite ease-in-out;
+    filter: brightness(1.1);
+}
+
+@keyframes prunePulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+    }
+
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    }
+}
+
+.joker-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* =========================================================================
+   MASCOT STYLES (Tohum Karakterimiz)
+   ========================================================================= */
+
+.mascot-container {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+#mascot {
+    width: 110px;
+    height: 110px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    z-index: 10;
+    pointer-events: none;
+    transition: background-image 0.3s ease-in-out;
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.15));
+    position: relative;
+    margin-bottom: 25px;
+    /* Platformun üzerine oturtmak için */
+}
+
+/* Yeni AI Tasarımlı Platform */
+#mascot-platform {
+    position: absolute;
+    bottom: 0;
+    width: 130px;
+    height: 70px;
+    background-image: url('assets/mascot/platform.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Dinamik CSS Gölge (Zemin hissi için) */
+#mascot::after {
+    content: '';
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 50%;
+    filter: blur(4px);
+    z-index: -1;
+    transition: all 0.3s ease-in-out;
+    /* animation: shadowBreathe 4s infinite ease-in-out; */ /* Performans için kapatıldı */
+}
+
+
+/* Nefes Alma Efekti */
+@keyframes mascotBreathe {
+
+    0%,
+    100% {
+        transform: scale(1) translateY(0);
+    }
+
+    50% {
+        transform: scale(1.02) translateY(-3px);
+    }
+}
+
+@keyframes shadowBreathe {
+
+    0%,
+    100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateX(-50%) scale(0.9);
+        opacity: 0.7;
+    }
+}
+
+
+/* Maskot Durumları (Platformsuz Resimler) */
+.mascot-idle {
+    background-image: url('assets/mascot/tek.png');
+}
+
+.mascot-happy {
+    background-image: url('assets/mascot/tek%20mutlu.png');
+    animation: mascotJump 0.6s ease-in-out !important;
+    /* Resimdeki hafif ön kaymayı (drift) telafi etmek için statik bir düzeltme */
+    margin-left: -5px;
+}
+
+.mascot-happy::after {
+    animation: shadowJump 0.6s ease-in-out !important;
+}
+
+.mascot-sad {
+    background-image: url('assets/mascot/tek%20%C3%BCzg%C3%BCn.png');
+    animation: mascotDroop 1s forwards !important;
+}
+
+.mascot-sad::after {
+    opacity: 0.5;
+    transform: translateX(-51%) scale(0.8);
+}
+
+/* Sevinç Zıplaması */
+@keyframes mascotJump {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1.05, 0.95);
+    }
+
+    50% {
+        transform: translateY(-40px) scale(0.95, 1.05);
+    }
+}
+
+@keyframes shadowJump {
+
+    0%,
+    100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateX(-50%) scale(0.5);
+        opacity: 0.3;
+        filter: blur(8px);
+    }
+}
+
+/* Üzüntü/Çöküş */
+@keyframes mascotDroop {
+    0% {
+        transform: scale(1) translateY(0);
+    }
+
+    100% {
+        transform: scale(0.98) translateY(8px);
+        filter: brightness(0.9);
+    }
+}
+
+
+
+.score-box {
+    background-color: var(--grid-bg);
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.score-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #f4eee1;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.score-box span:not(.score-label) {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.new-game-btn {
+    background-color: var(--accent-color);
+    color: #2c4228;
+    border: none;
+    border-radius: 10px;
+    padding: 0 15px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    flex: 1.2;
+    /* Buton puan kutularından biraz daha geniş dursun */
+    box-shadow: 0 4px 0px #7a9472;
+}
+
+.new-game-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0px #7a9472;
+}
+
+.new-game-btn:hover {
+    background-color: #b5d1ab;
+}
+
+footer {
+    padding-top: 20px;
+    min-height: 50px;
+    /* Boşluk bırakalım */
+}
+
+.game-container {
+    background-color: var(--grid-bg);
+    padding: var(--board-spacing);
+    border-radius: 12px;
+    position: relative;
+    aspect-ratio: 1;
+    width: 100%;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: var(--board-spacing);
+    width: 100%;
+    height: 100%;
+}
+
+.cell {
+    background-color: var(--cell-bg);
+    border-radius: 8px;
+    width: 100%;
+    height: 100%;
+}
+
+.tile-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Oyun Bitti Overlay — tahtanın üstünde, hafif ve undo'yu engellemeyen */
+#game-over-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(44, 66, 40, 0.55);
+    border-radius: 12px;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeInOverlay 0.5s ease-in-out;
+    pointer-events: none;
+}
+
+.game-over-text {
+    text-align: center;
+    color: #fff;
+}
+
+.game-over-text span {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.game-over-text p {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.game-over-text small {
+    font-size: 0.9rem;
+    opacity: 0.85;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.tile {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 2.5rem;
+    transition: left 120ms ease-in-out, top 120ms ease-in-out;
+    top: 0;
+    left: 0;
+    /* Performans için hardware acceleration ve katman hazırlığı */
+    will-change: transform, left, top;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0); /* Taşları GPU katmanına zorlar, layout bozmaz */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Kutu Renkleri (Doğa Teması) ve Görseller */
+/* 2: Toprak/Tohum - Çok açık krem/toprak */
+.tile-2 {
+    background-color: #f4eee1;
+    background-image: url('assets/2.png');
+}
+
+/* 4: Filiz - Açık yumuşak yeşil-toprak */
+.tile-4 {
+    background-color: #e9e3d3;
+    background-image: url('assets/4.png');
+}
+
+/* 8: Yavru fidan - Uçuk adaçayı yeşili */
+.tile-8 {
+    background-color: #d6e0cc;
+    background-image: url('assets/8.png');
+    background-size: 75% !important;
+}
+
+/* 16: Fidan - Soft yosun yeşili */
+.tile-16 {
+    background-color: #c0d1b3;
+    background-image: url('assets/16.png');
+}
+
+/* 32: Genç Ağaç - Dinlendirici orman yeşili */
+.tile-32 {
+    background-color: #a4c29a;
+    background-image: url('assets/32.png');
+}
+
+/* 64: Çam/Orta Ağaç - Canlı yaprak yeşili */
+.tile-64 {
+    background-color: #8ab381;
+    background-image: url('assets/64.png');
+}
+
+/* 128: Meyveli Ağaç (Eski 256) */
+.tile-128 {
+    background-color: #dbe2a4;
+    background-image: url('assets/128.png');
+    background-size: 87% !important;
+    box-shadow: 0 0 20px 8px rgba(138, 179, 129, 0.3);
+}
+
+/* 256: Ulu Orman Ağacı (Eski 512) */
+.tile-256 {
+    background-color: #c9d885;
+    background-image: url('assets/256.png');
+    background-size: 100% !important;
+    box-shadow: 0 0 25px 10px rgba(138, 179, 129, 0.4);
+}
+
+/* 512: Altın Ağaç (Eski 1024) */
+.tile-512 {
+    background-color: #ebda86;
+    background-image: url('assets/512.png');
+    background-size: 100% !important;
+    box-shadow: 0 0 30px 12px rgba(235, 218, 134, 0.4);
+}
+
+/* 1024: Ulu Çınar (Eski 2048) */
+.tile-1024 {
+    background-color: #d4af37;
+    background-image: url('assets/1024.png');
+    box-shadow: 0 0 40px 15px rgba(212, 175, 55, 0.5);
+}
+
+/* 2048: MASKOT ZAFERİ - Özel Altın Parıltı */
+.tile-2048 {
+    background-color: #ffd700;
+    background-image: url('assets/2048.jpg');
+    box-shadow: 0 0 50px 20px rgba(255, 215, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.5);
+    border: 2px solid #fff;
+    z-index: 10;
+}
+
+/* 4096: EASTER EGG - Ultra Görkem */
+.tile-4096 {
+    background-color: #a32cc4; /* Morumsu bir hava */
+    background-image: url('assets/4096.jpg');
+    box-shadow: 0 0 60px 25px rgba(163, 44, 196, 0.7), inset 0 0 30px rgba(255, 255, 255, 0.6);
+    border: 3px solid #fff;
+    z-index: 11;
+}
+
+/* Renk değerleri aştığında (super tiles) - Gizemli koyu orman/ahşap */
+.tile-super {
+    background-color: #4a5c43;
+}
+
+/* Resim ayarları */
+.tile {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* İç yazıyı gizle (artık görsellere geçtiğimiz için) */
+.tile-inner {
+    opacity: 0;
+}
+
+/* Animasyonlar */
+.tile.new {
+    animation: appear 0.2s ease-in-out;
+    animation-fill-mode: backwards;
+}
+
+@keyframes appear {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.tile-inner.inner-merged {
+    animation: pop 0.2s ease-in-out;
+}
+
+@keyframes pop {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+        gap: 15px;
+    }
+
+    .header-titles h1 {
+        font-size: 3.2rem;
+        padding-right: 30px;
+    }
+    
+    .header-titles h1::after {
+        font-size: 2rem;
+        top: -3px;
+    }
+
+    .subtitle {
+        font-size: 0.85rem;
+    }
+
+    #mascot {
+        width: 110px;
+        height: 110px;
+    }
+
+    .header-controls {
+        gap: 6px;
+    }
+
+    .score-box {
+        padding: 6px;
+    }
+
+    .score-box span:not(.score-label) {
+        font-size: 1.3rem;
+    }
+
+    .new-game-btn {
+        padding: 8px;
+        font-size: 0.95rem;
+    }
+}
+
+/* =========================================================================
+   ENVIRONMENT ANIMATIONS (Seviyeye Göre Doğa Detayları)
+   ========================================================================= */
+
+/* =========================================================================
+   ENVIRONMENT ANIMATIONS (Geçici olarak kaldırıldı)
+   ========================================================================= */
+
+
+
+
+/* Seviye 4 (2048): Yaprak Dökümü Efekti (JavaScript'ten oluşturulur) */
+.victory-leaf {
+    position: fixed;
+    top: -50px;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    animation-name: fallAndSway;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fallAndSway {
+    0% {
+        opacity: 0;
+        transform: translateY(-50px) rotate(0deg) translateX(0);
+    }
+
+    10% {
+        opacity: 0.8;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateY(110vh) rotate(360deg) translateX(50px);
+    }
+}
+
+/* =========================================================================
+   INFO MODAL (Doğa Günlüğü) STYLES
+   ========================================================================= */
+
+body.modal-open {
+    overflow: hidden;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    background: white;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.close-modal {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    color: #888;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+.modal-body h2 {
+    text-align: center;
+    color: #2e4d2a;
+    margin-bottom: 25px;
+    font-size: 2rem;
+}
+
+/* ===== SAKU'NUN GÜNLÜĞÜ MODAL ===== */
+.saku-modal-content {
+    background: linear-gradient(170deg, #f0f7ec 0%, #e8f0e3 40%, #faf6f0 100%);
+    border: 2px solid rgba(74, 124, 68, 0.2);
+}
+
+.saku-modal-title {
+    font-size: 1.8rem;
+    color: #2c4228;
+    text-align: center;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+}
+
+/* Saku Konuşma Bölümü */
+.saku-speech-section {
+    margin-bottom: 20px;
+}
+
+.saku-speech-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.saku-speech-img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.saku-speech-bubble {
+    background: white;
+    border-radius: 18px;
+    padding: 14px 18px;
+    position: relative;
+    box-shadow: 0 2px 12px rgba(44, 66, 40, 0.1);
+    border: 1.5px solid rgba(74, 124, 68, 0.15);
+}
+
+.saku-speech-bubble::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 10px solid white;
+}
+
+.saku-speech-bubble p {
+    margin: 0;
+    color: #3a3a3a;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Hikaye Bölümü */
+.saku-story-section {
+    background: rgba(46, 77, 42, 0.07);
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    border-left: 4px solid #4a7c44;
+}
+
+.saku-story-section h3 {
+    color: #2c4228;
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+}
+
+.saku-story-section p {
+    color: #444;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    margin-bottom: 10px;
+}
+
+.saku-story-section p:last-child {
+    margin-bottom: 0;
+}
+
+/* Bağış CTA Bölümü */
+.saku-donate-section {
+    background: linear-gradient(135deg, #e8f5e2, #f5f0e0);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    border: 1.5px solid rgba(74, 124, 68, 0.2);
+}
+
+.saku-donate-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.saku-donate-text {
+    flex: 1;
+    text-align: left;
+}
+
+.saku-donate-text h3 {
+    color: #2c4228;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+}
+
+.saku-donate-text p {
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.saku-point-img {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.saku-donate-btn-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.saku-btn-img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.saku-donate-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #4a7c44, #2c4228);
+    color: white;
+    padding: 14px 36px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(44, 66, 40, 0.3);
+}
+
+.saku-donate-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(44, 66, 40, 0.4);
+}
+
+.saku-modal-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.85rem;
+    color: #7a9a72;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* =========================================================================
+   DONATION BAR (Bağış Takipçisi)
+   ========================================================================= */
+
+footer {
+    width: 100%;
+    max-width: 500px;
+    margin-top: 10px;
+}
+
+.footer-layout-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+#donation-container {
+    background: #5d4037;
+    /* Koyu Ahşap/Toprak Kahverengisi */
+    padding: 10px 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.compact-donation {
+    flex: 1;
+}
+
+.footer-circular-donate-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4a7c44, #2c4228);
+    color: white;
+    font-size: 1.5rem;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(44, 66, 40, 0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+    flex-shrink: 0;
+}
+
+.footer-circular-donate-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 18px rgba(44, 66, 40, 0.45);
+}
+
+.donation-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff9c4;
+    /* Hafif sarımsı beyaz - daha iyi okunurluk */
+}
+
+.donation-bar {
+    width: 100%;
+    height: 12px;
+    /* Biraz kalınlaştırdık */
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#donation-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #4caf50, #81c784);
+    /* Canlı Doğa Yeşili */
+    border-radius: 6px;
+    transition: width 1s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+/* =========================================================================
+   GAME MODAL (Kazanma / Kaybetme / Easter Egg)
+   ========================================================================= */
+
+.game-modal-content {
+    text-align: center;
+    padding: 40px 30px;
+    background: linear-gradient(145deg, #fefefe, #f0f0f0);
+}
+
+.game-modal-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    animation: modalIconBounce 0.6s ease-in-out;
+}
+
+@keyframes modalIconBounce {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.game-modal-content h2 {
+    color: #2e4d2a;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+}
+
+.game-modal-content p {
+    color: #555;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.game-modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.game-modal-btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.continue-btn {
+    background-color: var(--accent-color);
+    color: #2c4228;
+    box-shadow: 0 4px 0 #7a9472;
+}
+
+.continue-btn:hover {
+    background-color: #b5d1ab;
+}
+
+.continue-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #7a9472;
+}
+
+.newgame-btn {
+    background-color: #8B5A2B;
+    color: white;
+    box-shadow: 0 4px 0 #5d3a1a;
+}
+
+.newgame-btn:hover {
+    background-color: #a67c52;
+}
+
+.newgame-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #5d3a1a;
+}
+
+/* Kazanma modalı - altın parlama */
+.game-modal-win .game-modal-content {
+    background: linear-gradient(145deg, #fffef5, #fff8dc);
+    border: 2px solid #ffd700;
+}
+
+/* Easter egg modalı - mor parlama */
+.game-modal-easter .game-modal-content {
+    background: linear-gradient(145deg, #f8f0ff, #ede0ff);
+    border: 2px solid #a32cc4;
+}
+
+.game-modal-easter .game-modal-content h2 {
+    color: #7b1fa2;
+}
+
+/* Kaybetme modalı */
+.game-modal-lose .game-modal-content {
+    background: linear-gradient(145deg, #fefefe, #f5f0eb);
+    border: 2px solid #8B5A2B;
+}

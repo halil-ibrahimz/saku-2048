@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Doğa 2048 - SAÜ Hatıra Ormanı</title>
+    <meta name="description" content="Doğa 2048 - SAÜ Hatıra Ormanı temalı eğlenceli bir bulmaca oyunu. Doğayı birleştir, ormanı büyüt!">
+    <meta name="theme-color" content="#2c4228">
+    <meta property="og:title" content="Doğa 2048 - SAÜ Hatıra Ormanı">
+    <meta property="og:description" content="Doğayı birleştir, ormanı büyüt! 🌳 SAÜ Hatıra Ormanı temalı 2048 bulmaca oyunu.">
+    <meta property="og:type" content="website">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <div class="header-left-group">
+                    <div class="header-titles">
+                        <h1>Saku</h1>
+                    </div>
+                    <div class="jokers-container">
+                        <button id="undo-btn" class="joker-btn" title="Geri Al">
+                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="currentColor" d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+                            </svg>
+                        </button>
+                        <button id="prune-btn" class="joker-btn" title="Budama (Tüm Aynıları Siler)">
+                            <span id="prune-charges">2</span>
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="6" cy="6" r="3"></circle>
+                                <circle cx="6" cy="18" r="3"></circle>
+                                <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
+                                <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
+                                <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
+                            </svg>
+                        </button>
+                        <button id="swap-btn" class="joker-btn" title="Değiştir (İki Kartın Yerini Değiştir)">
+                            <span id="swap-charges">2</span>
+                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="currentColor" d="M18 4l2 2-2 2V6h-6.25c-1.5 0-2.25.75-2.25 2.25V10h-2V8.25C7.5 5.35 9.35 3.5 12.25 3.5H18V1.5L20 3.5 18 5.5V4zM6 20l-2-2 2-2v2h6.25c1.5 0 2.25-.75 2.25-2.25V14h2v1.75c0 2.9-1.85 4.75-4.75 4.75H6v2l-2-2 2-2v2z"/>
+                            </svg>
+                        </button>
+                        <button id="info-btn" class="joker-btn info" title="Saku'nun Günlüğü">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="mascot-container">
+                    <div id="mascot-platform"></div>
+                    <div id="mascot" class="mascot-idle"></div>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="score-box">
+                    <span class="score-label">SKOR</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="score-box">
+                    <span class="score-label">EN YÜKSEK</span>
+                    <span id="best-score">0</span>
+                </div>
+                <button id="new-game-btn" class="new-game-btn">Yeni Oyun</button>
+            </div>
+        </header>
+
+        <main class="game-container" id="game-container">
+            <div class="grid" id="grid">
+                <!-- Izgara hücreleri JS tarafından oluşturulacak -->
+            </div>
+            <div class="tile-container" id="tile-container"></div>
+        </main>
+
+        <footer>
+            <div class="footer-layout-row">
+                <div id="donation-container" class="compact-donation">
+                    <div class="donation-header">
+                        <span class="donation-title">🌳 Bağış Hedefi</span>
+                        <span id="donation-text">800 / 2000 Fidan</span>
+                    </div>
+                    <div class="donation-bar">
+                        <div id="donation-fill"></div>
+                    </div>
+                </div>
+                <a href="#" class="footer-circular-donate-btn" title="Fidan Bağışla">🌱</a>
+            </div>
+        </footer>
+    </div>
+    <!-- Saku'nun Günlüğü Modalı -->
+    <div id="info-modal" class="modal">
+        <div class="modal-content saku-modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body saku-modal-body">
+                <!-- Başlık -->
+                <h2 class="saku-modal-title">🌿 Saku'nun Günlüğü</h2>
+
+                <!-- Saku Konuşuyor Bölümü -->
+                <div class="saku-speech-section">
+                    <div class="saku-speech-row">
+                        <img src="assets/mascot/saku.png" alt="Saku konuşuyor" class="saku-speech-img">
+                        <div class="saku-speech-bubble">
+                            <p>Merhaba gönüllü dostum! 👋 Ben <strong>Saku</strong>, bu yeşil yolculukta senin rehberin. Birlikte tohumdan ulu çınara uzanan bir hikaye yazıyoruz!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hikaye Bölümü -->
+                <section class="saku-story-section">
+                    <h3>🌍 Neden Buradayız?</h3>
+                    <p>Biz <strong>Sakarya Üniversitesi Gençlik ve Gönüllülük Dersi</strong> öğrencileri olarak organize olduk ve bir orman kurmak istiyoruz.</p>
+                    <p>Ormanların yandığı, karbon salınımının arttığı bu dünyada <strong>ağaçlandırmanın önemini</strong> bilerek bu güzel işte sizden destek istiyoruz.</p>
+                    <p>Bu oyunu oynarken her birleştirdiğin taş, tohumdan fidana, fidandan kocaman bir çınara dönüşüyor — tıpkı gerçek hayatta diktiğimiz ağaçlar gibi. 🌱</p>
+                </section>
+
+                <!-- Bağış CTA Bölümü -->
+                <div class="saku-donate-section">
+                    <div class="saku-donate-row">
+                        <div class="saku-donate-text">
+                            <h3>🤝 Sen de Destek Ol!</h3>
+                            <p>Bu dijital ormanı gerçeğe dönüştürmemize yardım et. Her bağış, toprağa yeni bir fidan demek!</p>
+                        </div>
+                        <img src="assets/mascot/saku sol.png" alt="Saku işaret ediyor" class="saku-point-img">
+                    </div>
+                    <div class="saku-donate-btn-row">
+                        <img src="assets/mascot/saku sag.png" alt="Saku bağışı işaret ediyor" class="saku-btn-img">
+                        <a href="#" id="donate-link" class="saku-donate-btn">🌱 Fidan Bağışla</a>
+                    </div>
+                </div>
+
+                <p class="saku-modal-footer">Saku'nun Ormanı • SAÜ Gönüllüleri</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Oyun Sonu / Kazanma Modalı -->
+    <div id="game-modal" class="modal">
+        <div class="modal-content game-modal-content">
+            <div id="game-modal-icon" class="game-modal-icon">🌳</div>
+            <h2 id="game-modal-title">Tebrikler!</h2>
+            <p id="game-modal-message" style="line-height: 1.5;">Oyunu kazandınız!</p>
+            
+            <div id="game-modal-donate-wrapper" style="text-align: center; margin: 25px 0; display: none;">
+                <a href="#" class="saku-donate-btn" style="font-size: 1.1rem; padding: 12px 28px;">🌱 Fidan Bağışla</a>
+            </div>
+
+            <div class="game-modal-buttons">
+                <button id="game-modal-continue" class="game-modal-btn continue-btn">Devam Et</button>
+                <button id="game-modal-newgame" class="game-modal-btn newgame-btn">Yeni Oyun</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

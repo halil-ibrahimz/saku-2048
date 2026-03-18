@@ -1,0 +1,12 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# Gemini/AI temporary files
+.gemini/
+brain/
+tmp/
+*.log
+
+# VS Code
+.vscode/
