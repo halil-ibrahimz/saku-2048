@@ -234,6 +234,7 @@ function initGame(forceNew = false) {
     gameHistory = []; // Yeni oyunda geçmişi temizle (undo exploit önlemi)
     isGameOver = false;
     isGameWon = false;
+    isEasterEggFound = false;
     is1024Reached = false;
     isAnimating = false;
     highestTile = 0;
@@ -794,7 +795,7 @@ function checkGameOver() {
                 saveState();
                 setMascotState('happy');
                 createVictoryLeaves();
-                setTimeout(() => showGameModal('🎉 Tebrikler!', "Saku'ya bu yolculukta eşlik ettiğin için teşekkürler! Hediyesini kabul et 🌸 İstersen sen de bu dijital ormanı gerçeğe dökmemiz için bize destek ol!", 'win'), 800);
+                setTimeout(() => showGameModal('🎉 Tebrikler!', "Tebrikler buraya kadar geldin! Bu dijital ormanı gerçek bir ormana çevirmek için sana da ihtiyacımız var, bağış yaparak bize destek olabilirsin. Devam etmek istersen Saku'nun sana joker hediyesi var 🌸", 'win'), 800);
             }
             if (val === 4096 && !isEasterEggFound) {
                 isEasterEggFound = true;
