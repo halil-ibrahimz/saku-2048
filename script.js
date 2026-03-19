@@ -61,6 +61,7 @@ let isGameOver = false;
 let isGameWon = false;
 let isEasterEggFound = false;
 let is1024Reached = false;
+let isInfoClicked = false;
 let isPruningMode = false;
 let pruningCharges = 2;
 let isSwapMode = false;
@@ -94,6 +95,7 @@ function saveState() {
         isGameWon: isGameWon,
         isEasterEggFound: isEasterEggFound,
         is1024Reached: is1024Reached,
+        isInfoClicked: isInfoClicked,
         pruningCharges: pruningCharges,
         swapCharges: swapCharges
     };
@@ -107,6 +109,7 @@ function pushToHistory() {
         isGameOver: isGameOver,
         isGameWon: isGameWon,
         is1024Reached: is1024Reached,
+        isInfoClicked: isInfoClicked,
         pruningCharges: pruningCharges,
         swapCharges: swapCharges
     };
@@ -124,6 +127,13 @@ function undoMove() {
     isGameOver = lastState.isGameOver;
     isGameWon = lastState.isGameWon;
     is1024Reached = lastState.is1024Reached || false;
+    isInfoClicked = lastState.isInfoClicked || false;
+
+    if (!isInfoClicked && infoBtn) {
+        infoBtn.classList.add('needs-attention');
+    } else if (infoBtn) {
+        infoBtn.classList.remove('needs-attention');
+    }
     
     // Jokerleri geri yükle ve arayüzü güncelle
     pruningCharges = (lastState.pruningCharges !== undefined) ? lastState.pruningCharges : pruningCharges;
@@ -174,6 +184,14 @@ function loadState() {
         isGameWon = state.isGameWon || false;
         isEasterEggFound = state.isEasterEggFound || false;
         is1024Reached = state.is1024Reached || false;
+        isInfoClicked = state.isInfoClicked || false;
+
+        if (!isInfoClicked && infoBtn) {
+            infoBtn.classList.add('needs-attention');
+        } else if (infoBtn) {
+            infoBtn.classList.remove('needs-attention');
+        }
+
         pruningCharges = (state.pruningCharges !== undefined) ? state.pruningCharges : 2;
         swapCharges = (state.swapCharges !== undefined) ? state.swapCharges : 2;
         grid = [
@@ -236,6 +254,7 @@ function initGame(forceNew = false) {
     isGameWon = false;
     isEasterEggFound = false;
     is1024Reached = false;
+    isInfoClicked = false;
     isAnimating = false;
     highestTile = 0;
     document.body.setAttribute('data-level', '1');
@@ -974,6 +993,12 @@ if (infoBtn) {
     infoBtn.addEventListener('click', () => {
         infoModal.style.display = 'block';
         document.body.classList.add('modal-open');
+        
+        if (!isInfoClicked) {
+            isInfoClicked = true;
+            infoBtn.classList.remove('needs-attention');
+            saveState();
+        }
     });
 }
 
