@@ -1216,3 +1216,33 @@ footer {
     background: linear-gradient(145deg, #fefefe, #f5f0eb);
     border: 2px solid #8B5A2B;
 }
+
+/* PUZZLE ANIMATION FOR 4096 ENDING */
+.puzzle-piece-win {
+    position: absolute;
+    background-image: url('assets/4096.jpg');
+    background-size: 400% 400%;
+    border-radius: 8px;
+    animation: popPuzzlePiece 2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    z-index: 1000;
+    opacity: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+@keyframes popPuzzlePiece {
+    0% {
+        opacity: 0;
+        transform: scale(0.2) rotate(-15deg);
+    }
+    40% {
+        opacity: 1;
+        transform: scale(1.05) rotate(0deg);
+        border-radius: 8px;
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+        border-radius: 2px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+}

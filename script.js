@@ -790,6 +790,34 @@ function handleInput(e) {
     }
 }
 
+function triggerPuzzleEnding() {
+    isAnimating = true; 
+    isGameOver = true;
+    tileContainer.innerHTML = ''; // Temizle
+    
+    for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+            let pos = getCellPosition(r, c);
+            
+            let piece = document.createElement('div');
+            piece.className = 'puzzle-piece-win';
+            piece.style.top = pos.top + 'px';
+            piece.style.left = pos.left + 'px';
+            piece.style.width = pos.width + 'px';
+            piece.style.height = pos.height + 'px';
+            
+            let bgPosX = c * 33.333;
+            let bgPosY = r * 33.333;
+            piece.style.backgroundPosition = `${bgPosX}% ${bgPosY}%`;
+            
+            let delay = (r * 4 + c) * 0.05 + Math.random() * 0.1;
+            piece.style.animationDelay = `${delay}s`;
+            
+            tileContainer.appendChild(piece);
+        }
+    }
+}
+
 function checkGameOver() {
     if (isGameOver) return;
 
@@ -822,7 +850,11 @@ function checkGameOver() {
                 saveState();
                 setMascotState('happy');
                 createVictoryLeaves();
-                setTimeout(() => showGameModal('😱 İNANILMAZ!', "Vay be! Sona kadar geldin 🫡 Saku sana şimdilik veda ediyor ama oluşturacağımız ormana olan desteğinde sana güveniyor!", 'easter'), 800);
+                
+                triggerPuzzleEnding();
+                
+                // Animasyon bitişini bekleyip (yaklaşık 2.5s) modalı aç
+                setTimeout(() => showGameModal('😱 İNANILMAZ!', "Vay be! Sona kadar geldin 🫡 Saku sana şimdilik veda ediyor ama oluşturacağımız ormana olan desteğinde sana güveniyor!", 'easter'), 3000);
                 return; // 4096'da artık başka kontrol yapma
             }
         }
@@ -1025,12 +1057,15 @@ function showGameModal(title, message, type) {
     const continueBtn = document.getElementById('game-modal-continue');
     const newGameModalBtn = document.getElementById('game-modal-newgame');
     const donateBtnWrapper = document.getElementById('game-modal-donate-wrapper');
+    const farewellBtn = document.getElementById('game-modal-farewell');
 
     if (!modal) return;
 
     modalTitle.innerText = title;
     // Satır sonlarını (newline) korumak için innerHTML kullanıyorum veya manuel <br> ekleyebiliriz ama CSS yeterli olabilir. Metinler uzun olduğu için innerText yeterli.
     modalMessage.innerText = message;
+
+    if (farewellBtn) farewellBtn.style.display = 'none';
 
     // Tip bazlı ikon ve stiller
     if (type === 'win') {
@@ -1043,7 +1078,8 @@ function showGameModal(title, message, type) {
         modalIcon.innerText = '👋';
         modal.className = 'modal game-modal-easter';
         continueBtn.style.display = 'none'; // 4096'da oyun bitti, devam yok
-        newGameModalBtn.style.display = 'inline-block';
+        if (farewellBtn) farewellBtn.style.display = 'inline-block';
+        newGameModalBtn.style.display = 'none';
         if (donateBtnWrapper) donateBtnWrapper.style.display = 'block';
     } else {
         modalIcon.innerText = '🍂';
@@ -1068,6 +1104,7 @@ function closeGameModal() {
 // Game modal event listeners
 const gameModalContinue = document.getElementById('game-modal-continue');
 const gameModalNewGame = document.getElementById('game-modal-newgame');
+const gameModalFarewell = document.getElementById('game-modal-farewell');
 
 if (gameModalContinue) {
     gameModalContinue.addEventListener('click', () => {
@@ -1079,6 +1116,12 @@ if (gameModalNewGame) {
     gameModalNewGame.addEventListener('click', () => {
         closeGameModal();
         initGame(true);
+    });
+}
+
+if (gameModalFarewell) {
+    gameModalFarewell.addEventListener('click', () => {
+        closeGameModal();
     });
 }
 
