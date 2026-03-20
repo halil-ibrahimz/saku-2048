@@ -62,6 +62,16 @@ let isGameWon = false;
 let isEasterEggFound = false;
 let is1024Reached = false;
 let isInfoClicked = false;
+
+// Helpers
+function has4096Tile() {
+    for (const row of grid) {
+        for (const tile of row) {
+            if (tile && tile.value >= 4096) return true;
+        }
+    }
+    return false;
+}
 let isPruningMode = false;
 let pruningCharges = 2;
 let isSwapMode = false;
@@ -766,7 +776,7 @@ function swapTiles(t1, t2) {
 }
 
 function handleInput(e) {
-    if (isAnimating || isGameOver || isPruningMode || isSwapMode) return;
+    if (isAnimating || isGameOver || isPruningMode || isSwapMode || has4096Tile()) return;
 
     pushToHistory(); // Hamle yapmadan önce durumu sakla
 
@@ -925,7 +935,7 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 
 document.addEventListener('touchend', e => {
-    if (isAnimating || isGameOver || isPruningMode || isSwapMode) return;
+    if (isAnimating || isGameOver || isPruningMode || isSwapMode || has4096Tile()) return;
     let touchEndX = e.changedTouches[0].screenX;
     let touchEndY = e.changedTouches[0].screenY;
 
