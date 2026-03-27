@@ -22,8 +22,8 @@ preloadImages(); // Oyun başlarken yükle
 
 // --- BAĞIŞ SİSTEMİ AYARLARI (Burayı Manuel Güncelleyebilirsin) ---
 const donationConfig = {
-    current: 800,   // Şuan toplanan bağış
-    target: 2000,   // Hedef bağış
+    current: 0,   // Şuan toplanan bağış (sıfırlandı)
+    target: 2000,   // Hedef bağış (artık arayüzde gösterilmiyor ama mantıkta durabilir)
     label: "Fidan"  // Birim (Fidan, TL vb.)
 };
 
@@ -32,9 +32,10 @@ function updateDonationBar() {
     const text = document.getElementById('donation-text');
     if (!fill || !text) return;
 
-    const percentage = Math.min((donationConfig.current / donationConfig.target) * 100, 100);
-    fill.style.width = `${percentage}%`;
-    text.innerText = `${donationConfig.current} / ${donationConfig.target} ${donationConfig.label}`;
+    // Hedef iptal edildiği için bar hep %100 yeşil görünecek.
+    fill.style.width = `100%`;
+    // Sadece mevcut bağış sayısını gösterecek, hedefi değil.
+    text.innerText = `${donationConfig.current} ${donationConfig.label}`;
 }
 // ----------------------------------------------------------------
 

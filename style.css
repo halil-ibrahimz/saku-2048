@@ -1105,11 +1105,16 @@ footer {
 
 #donation-fill {
     height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #4caf50, #81c784);
-    /* Canlı Doğa Yeşili */
+    width: 100%; /* JS'den bağımsız CSS güvencesi */
+    background: linear-gradient(90deg, #4caf50, #81c784, #4caf50);
+    background-size: 200% 100%;
     border-radius: 6px;
-    transition: width 1s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    animation: flowGreen 3s infinite linear;
+}
+
+@keyframes flowGreen {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
 }
 
 /* =========================================================================

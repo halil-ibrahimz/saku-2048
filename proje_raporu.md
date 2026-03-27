@@ -1,5 +1,5 @@
 # 🌳 Proje Sunum Dosyası: Saku'nun Ormanı
-**Sakarya Üniversitesi - Gençlik ve Gönüllülük Dersi Projesi**
+**SAÜ UNESCO Gençlik ve Gönüllülük Ders-Kulübü Ortak Projesi**
 
 ---
 
@@ -39,4 +39,5 @@ Oyun, tamamen modern web standartlarında (HTML5, CSS3, JavaScript) sıfırdan i
 
 **Geliştirici:** Halil İbrahim  
 **Ders:** Gençlik ve Gönüllülük (SAÜ)  
-**Proje Linki:** [https://halil-ibrahimz.github.io/sakununormani/](https://halil-ibrahimz.github.io/sakununormani/)
+**Topluluk:** SAÜ UNESCO Gençlik ve Gönüllülük Kulübü  
+**Proje Linki:** [https://www.sakununormani.com.tr](https://www.sakununormani.com.tr)
