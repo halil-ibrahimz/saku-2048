@@ -853,7 +853,7 @@ function checkGameOver() {
                 saveState();
                 setMascotState('happy');
                 createVictoryLeaves();
-                setTimeout(() => showGameModal('🎉 Tebrikler!', "Tebrikler buraya kadar geldin! Bu dijital ormanı gerçek bir ormana çevirmek için sana da ihtiyacımız var, bağış yaparak bize destek olabilirsin. Devam etmek istersen Saku'nun sana joker hediyesi var 🌸", 'win'), 800);
+                setTimeout(() => showGameModal('🎉 Tebrikler!', "Tebrikler buraya kadar geldin! Bu dijital ormanı gerçek bir ormana çevirmek için sana ihtiyacımız var, bağış yaparak bize destek olabilirsin. Devam etmek istersen Saku'nun sana joker hediyesi var 🌸", 'win'), 800);
             }
             if (val === 4096 && !isEasterEggFound) {
                 isEasterEggFound = true;

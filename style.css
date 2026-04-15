@@ -1072,25 +1072,35 @@ footer {
     flex: 1;
 }
 
-.footer-circular-donate-btn {
+.footer-pill-donate-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 50px;
+    gap: 6px;
     height: 50px;
-    border-radius: 50%;
+    padding: 0 18px;
+    border-radius: 25px; /* Hap şeklinde olması için yuvarlak köşeler */
     background: linear-gradient(135deg, #4a7c44, #2c4228);
-    color: white;
-    font-size: 1.5rem;
+    color: #fff9c4; /* Bağış sayısı başlığıyla uyumlu hafif sarımsı beyaz */
     text-decoration: none;
     box-shadow: 0 4px 12px rgba(44, 66, 40, 0.35);
     transition: transform 0.2s, box-shadow 0.2s;
     flex-shrink: 0;
 }
 
-.footer-circular-donate-btn:hover {
-    transform: scale(1.1);
+.footer-pill-donate-btn:hover {
+    transform: scale(1.05);
     box-shadow: 0 6px 18px rgba(44, 66, 40, 0.45);
+}
+
+.footer-pill-donate-btn .donate-icon {
+    font-size: 1.3rem; /* Fidan ikonunu çok hafif küçültebiliriz */
+}
+
+.footer-pill-donate-btn .donate-text {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
 }
 
 .donation-header {
